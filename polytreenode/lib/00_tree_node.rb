@@ -56,6 +56,11 @@ class PolyTreeNode
     nil
   end
 
+  def trace_to_root
+    return [self.value] if parent.nil?
+    parent.trace_to_root + [self.value]
+  end
+
   def render
     ready_to_print_values = all_descendant_values
     print_width = ready_to_print_values.last.to_s.length
@@ -63,6 +68,11 @@ class PolyTreeNode
     ready_to_print_values.each do |vals|
       puts "#{vals}".center(print_width)
     end
+    # ? ? ? #
+    #   middle_i = vals.length / 2
+    #   left = vals.take(middle_i)
+    #   right = vals.drop(middle_i)
+    #   puts "#{left} || #{right}".center(print_width)
   end
 
   protected

@@ -12,18 +12,18 @@ class KnightPathFinder
     [-2,1],
     [-2,-1]
   ]
-  attr_reader :start_pos, :end_pos
+  attr_reader :start_pos, :end_pos, :move_tree
   attr_accessor :visited_positions
 
   def initialize(start_pos)
     @start_pos = start_pos
     @visited_positions = [start_pos]
+    @move_tree = PolyTreeNode.new(start_pos)
   end
 
-  def build_move_tree(end_pos)
+  def build_move_tree
     # breadth first => queue, FIFO
-    root_node = PolyTreeNode.new(start_pos)
-    queue = [root_node]
+    queue = [move_tree]
     until queue.empty?
       parent = queue.pop        # pull next parent_pos to generate children
       parent_pos = parent.value # => position value
@@ -38,10 +38,10 @@ class KnightPathFinder
         child = PolyTreeNode.new(move)
 
         child.parent = parent # update child's parent
-        queue.unshift(child) # push child into the queue
+        queue.unshift(child) # push child into the- queue
       end
     end
-      root_node # return the built tree
+      move_tree # return the built tree
   end
 
   def new_move_positions(pos)
@@ -51,19 +51,34 @@ class KnightPathFinder
   end
 
   def find_path(end_pos)
+    end_node = find_end_node(end_pos)
+    trace_path_back(end_node)
+  end
 
+  def find_end_node(end_pos)
+    move_tree.dfs(end_pos)
+  end
+
+  def trace_path_back(node)
+    node.trace_to_root
   end
 
   def self.valid_moves(pos)
     possible_moves = OFFSETS.map{|offset| [pos[0] + offset[0], pos[1] + offset[1]] }
 
     possible_moves.select{|move| valid_pos(move)}
-
   end
 
   def self.valid_pos(pos)
     # pos = x,y
-    pos.all? {|coord| (0..8).include?(coord) }
+    #
+    pos.all? {|coord| (0...8).include?(coord) }
   end
 
 end # class end
+
+if __FILE__ == $PROGRAM_NAME
+  knight = KnightPathFinder.new([0, 0])
+  knight.build_move_tree
+  p knight.find_path([3,6])
+end
